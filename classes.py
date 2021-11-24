@@ -23,7 +23,6 @@ def get_col_num(col_name_str, sheet):
         col_num = 'x'
     return col_num + 1
 
-
 def get_scout_attribute(scout_value_title, scout_row_values_list):
     try:
         mail = scout_row_values_list[get_col_num(scout_value_title, db_sheet)]
@@ -33,7 +32,6 @@ def get_scout_attribute(scout_value_title, scout_row_values_list):
         print('!!! possibly some attributes names are written incorrectly in the code')
     return mail
 
-
 def activity_value(activity):
     if activity == 'гурткові сходини':
         value = 10
@@ -42,7 +40,6 @@ def activity_value(activity):
     else:
         value = 5
     return value
-
 
 def gather_sum_update_scores_from_main_sheet():
     scouts_mail_list = db_sheet.col_values(1)
@@ -66,50 +63,46 @@ def gather_sum_update_scores_from_main_sheet():
             col = get_col_num('scores', db_sheet)
             db_sheet.update_cell(row, col, scout_total_score)
 
-
 def migrate_scores_from_group_sheets_to_log_sheet():
-    scouts_mail_list = db_sheet.col_values(1)
+    # scouts_mail_list = db_sheet.col_values(1)
     for group_evaluation_sheet in gs.worksheets():
         if group_evaluation_sheet.title.startswith('team'):
             activity_col_num = get_col_num('activity', group_evaluation_sheet)
             scouts_list = group_evaluation_sheet.row_values(1)[2:-1]
-            for row in range(2, len(group_evaluation_sheet.col_values(1))):
+            for row in range(2, len(group_evaluation_sheet.col_values(1)) + 1):
                 print(f'row in group_evaluation_sheet is {row}')
                 for scout in scouts_list:
-                    if scout[2:-1] not in scouts_mail_list:
-                        print(f'{scout[2:-1]} not in db')
-                    else:
-                        print('scout', scout)
-
-                        scout_col_num = get_col_num(scout, group_evaluation_sheet)
-                        print('scout_col_num', scout_col_num)
-
-                        # row then col
-                        time_stamp = group_evaluation_sheet.cell(2, 1).value
-                        print('time_stamp', time_stamp)
-
-                        who_evaluate = group_evaluation_sheet.cell(2, 2).value
-                        print('who_evaluate', who_evaluate)
-
-                        score = group_evaluation_sheet.cell(2, scout_col_num).value
-                        print('score', score)
-
-                        activity = group_evaluation_sheet.cell(2, activity_col_num).value
-                        print('activity', activity)
-
-                        next_free_row = len(score_log_sheet.col_values(1)) + 1
-                        print('next_free_row', next_free_row)
-
-                        score_log_sheet.update(f'A{str(next_free_row)}:E{str(next_free_row)}', [[time_stamp, scout[2:-1], score, activity, who_evaluate]])
+                    # if scout[2:-1] not in scouts_mail_list:
+                    # print(f'{scout[2:-1]} not in db')
+                    # else:
+                    scout_col_num = get_col_num(scout, group_evaluation_sheet)
+                    # row then col
+                    time_stamp = group_evaluation_sheet.cell(2, 1).value
+                    who_evaluate = group_evaluation_sheet.cell(2, 2).value
+                    score = group_evaluation_sheet.cell(2, scout_col_num).value
+                    activity = group_evaluation_sheet.cell(2, activity_col_num).value
+                    next_free_row = len(score_log_sheet.col_values(1)) + 1
+                    """print('next_free_row', next_free_row)
+                    print('scout', scout)
+                    print('scout_col_num', scout_col_num)
+                    print('time_stamp', time_stamp)
+                    print('who_evaluate', who_evaluate)
+                    print('score', score)
+                    print('activity', activity)"""
+                    score_log_sheet.update(f'A{str(next_free_row)}:E{str(next_free_row)}', [[time_stamp, scout[2:-1], score, activity, who_evaluate]])
                 group_evaluation_sheet.delete_rows(2, 2)
-                print()
+
+def optimised_migrate_scores_from_group_sheets_to_log_sheet():
+    
+
 
 # </editor-fold>
+
 # gather_sum_update_scores_from_main_sheet()
-migrate_scores_from_group_sheets_to_log_sheet()
+# migrate_scores_from_group_sheets_to_log_sheet()
 
 
-class Scout:
+"""class Scout:
     def __init__(self, scout_row):
         # <editor-fold desc="rename">
         scout_row_values_list = db_sheet.row_values(scout_row)
@@ -131,7 +124,7 @@ class Scout:
         self.troop = troop
         self.joined = joined
         self.rank = rank
-        self.scores = scores
+        self.scores = scores"""
 
 
 
