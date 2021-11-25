@@ -1,5 +1,4 @@
-from classes import Scout
-import time
+
 
 start = time.time()
 scout = Scout(3)
