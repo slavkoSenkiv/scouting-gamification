@@ -69,13 +69,13 @@ for log_row in lis:
     if log_row['scout'] not in log_summary.keys():
         if log_row['score'] == '':
             log_row['score'] = 0
-        log_summary.setdefault(log_row['scout'], int(log_row['score']))
-        continue # in order to avoid next if for same scout
+        log_summary.setdefault(log_row['scout'], log_row['score'])
+        continue  # in order to avoid next if for same scout
 
     if log_row['scout'] in log_summary.keys():
         if log_row['score'] == '':
             log_row['score'] = 0
-        updated_score = log_summary[log_row['scout']] + int(log_row['score'])
+        updated_score = log_summary[log_row['scout']] + log_row['score']
         log_summary[log_row['scout']] = updated_score
 
 print(pprint.pformat(log_summary))
