@@ -1,81 +1,71 @@
+import gspread
+import time
 import pprint
+import calendar
+from datetime import datetime
 
-lis = [{'activity': 'гра',
-  'score': -1,
-  'scout': ' [1@gmail.com]',
-  'time_stamp': '21.11.2021 22:12:00',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'гра',
-  'score': 1,
-  'scout': ' [2@gmail.com]',
-  'time_stamp': '21.11.2021 22:12:00',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'гра',
-  'score': 2,
-  'scout': ' [3@gmail.com]',
-  'time_stamp': '21.11.2021 22:12:00',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'гра',
-  'score': '',
-  'scout': ' [4@gmail.com]',
-  'time_stamp': '21.11.2021 22:12:00',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': '',
-  'score': 1,
-  'scout': ' [1@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:06',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': '',
-  'score': 2,
-  'scout': ' [2@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:06',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': '',
-  'score': 1,
-  'scout': ' [3@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:06',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': '',
-  'score': 2,
-  'scout': ' [4@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:06',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'впоряд',
-  'score': 2,
-  'scout': ' [1@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:45',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'впоряд',
-  'score': 2,
-  'scout': ' [2@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:45',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'впоряд',
-  'score': 2,
-  'scout': ' [3@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:45',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'},
- {'activity': 'впоряд',
-  'score': 2,
-  'scout': ' [4@gmail.com]',
-  'time_stamp': '21.11.2021 22:13:45',
-  'who evaluate': 'slavko.senkiv@gmail.com.com'}]
 
-log_summary = {}
-print('log_summary', log_summary)
-for log_row in lis:
-    # print(log_row['scout'], log_row['score'])
+# <editor-fold desc="gs auth">
+gs_name = 'scouting gamification'
+path_to_gspread_credentials_json = '/Users/ysenkiv/Code/access files/personal/google sheets and drive for gspread/credentials.json'
+path_to_gspread_authorized_user = '/Users/ysenkiv/Code/access files/personal/google sheets and drive for gspread/authorized_user.json'
+google_client = gspread.oauth(credentials_filename=path_to_gspread_credentials_json, authorized_user_filename=path_to_gspread_authorized_user)
+gs = google_client.open(gs_name)
+log_sheet = gs.worksheet('log')
+db_sheet = gs.worksheet('db')
+# </editor-fold>
 
-    if log_row['scout'] not in log_summary.keys():
-        if log_row['score'] == '':
-            log_row['score'] = 0
-        log_summary.setdefault(log_row['scout'], log_row['score'])
-        continue  # in order to avoid next if for same scout
 
-    if log_row['scout'] in log_summary.keys():
-        if log_row['score'] == '':
-            log_row['score'] = 0
-        updated_score = log_summary[log_row['scout']] + log_row['score']
-        log_summary[log_row['scout']] = updated_score
+def week_number_of_month(date_value):
+    return (date_value.isocalendar()[1] - date_value.replace(day=1).isocalendar()[1] + 1)
 
-print(pprint.pformat(log_summary))
+
+def define_score_origin(sheet_name):
+    if sheet_name.startswith('team'):
+        return 'team'
+
+
+def migrate_scores_from_group_sheets_to_log_sheet():
+    for group_evaluation_sheet in gs.worksheets():
+        if group_evaluation_sheet.title.startswith('team'):
+            list_of_dicts = group_evaluation_sheet.get_all_records()
+            log_sheet_list_of_lists_update = []
+            for dict_row in list_of_dicts:
+                for scout_key in dict_row:
+                    if '.com' in scout_key:
+                        # <editor-fold desc="get time values">
+                        time_string = dict_row['Позначка часу']
+                        time_stamp = datetime.strptime(time_string, '%d.%m.%Y %H:%M:%S')
+                        year = time_stamp.year
+                        month = time_stamp.month
+                        month_day = time_stamp.day
+                        week_day = calendar.day_name[time_stamp.weekday()]
+                        month_week = week_number_of_month(time_stamp)
+                        year_week = time_stamp.isocalendar().week
+                        hour = time_stamp.hour
+                        # </editor-fold>
+                        score_origin = define_score_origin(group_evaluation_sheet.title)
+                        print(year, month, month_day, week_day, month_week, year_week, hour, score_origin)
+
+                        who_evaluate = dict_row['Електронна адреса']
+                        activity = dict_row['activity']
+                        scout = scout_key
+                        scout_score = dict_row[scout_key]
+                        log_row = [time_stamp,
+                                   scout,
+                                   scout_score,
+                                   activity,
+                                   who_evaluate,
+                                   year,
+                                   month,
+                                   month_day,
+                                   week_day,
+                                   month_week,
+                                   year_week,
+                                   hour,
+                                   score_origin]
+                        log_sheet_list_of_lists_update.append(log_row)
+                        # print(log_row)
+
+
+migrate_scores_from_group_sheets_to_log_sheet()
