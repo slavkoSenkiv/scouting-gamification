@@ -1,37 +1,56 @@
-situations = {'one_player': {'p1': 1},
-              'all_players_have_different_places': {'p1': 1,
-                                                    'p2': 2,
-                                                    'p3': 3,
-                                                    'p4': 4,
-                                                    'p5': 5,
-                                                    'p6': 6,
-                                                    'p7': 7,
-                                                    'p8': 8,
-                                                    'p9': 9,
-                                                    'p10': 10},
-              'some_players_have_similar_places': {'p1': 1,
-                                         'p2': 2,
-                                         'p3': 2,
-                                         'p4': 3,
-                                         'p5': 3,
-                                         'p6': 4,
-                                         'p7': 4,
-                                         'p8': 4,
-                                         'p9': 4,
-                                         'p10': 4}}
-
-
-def get_coefficient(player_name, player_place, places):
-    coefficient = 150 - ((player_place - 1) * 150 / places)
-    print(f'{player_name} with {player_place} place has {coefficient} coef')
-
-
-def get_places_num(dict):
+def get_places_num(dic):
     lis = []
-    for k, v in dict.items():
+    for k, v in dic.items():
         if v not in lis:
             lis.append(v)
     return len(lis)
+
+
+def get_coefficient(name, place, places):
+    if place >= 1:
+        coefficient = round(100 - ((place - 1) * 100 / places), 2)
+    if 1 > place >= 0:
+        coefficient = round(100 * place, 2)
+    if place < 0:
+        coefficient = round(100 * place, 2)
+    print(f'{name} with {place} place has {coefficient} coef')
+
+
+def iterate(dic):
+    for name, place in dic.items():
+        get_coefficient(name, place, get_places_num(dic))
+        print('places', get_places_num(dic))
+    print()
+
+
+situations = {'one_player_done_well':
+                  {'p1': 1},
+
+              'one_player_done_0.6':
+                  {'p1': 0.6},
+
+              'one_player_done_0':
+                  {'p1': 0},
+
+              'one_player_done -0.5':
+                  {'p1': -0.5},
+
+              'one_player_done_negative_1':
+                  {'p1': -1},
+
+              'all_players_have_different_places':
+                  {'p1': 1,
+                   'p2': 2,
+                   'p3': 3,
+                   'p4': 4,
+                   'p5': 5},
+
+              'some_players_have_similar_places':
+                  {'p1': 1,
+                   'p2': 2,
+                   'p3': 2,
+                   'p4': 3,
+                   'p5': 4}}
 
 
 for situation_name, players_and_places in situations.items():
