@@ -8,11 +8,9 @@ def get_places_num(dic):
 
 def get_coefficient(name, place, places):
     if place >= 1:
-        coefficient = round(100 - ((place - 1) * 100 / places), 2)
-    if 1 > place >= 0:
-        coefficient = round(100 * place, 2)
-    if place < 0:
-        coefficient = round(100 * place, 2)
+        coefficient = round(100 - ((place - 1) * 100 / places))
+    if place < 1:
+        coefficient = round(100 * place)
     print(f'{name} with {place} place has {coefficient} coef')
 
 
@@ -23,29 +21,29 @@ def iterate(dic):
     print()
 
 
-situations = {'one_player_done_well':
+situations = {'one player done 100%':
                   {'p1': 1},
 
-              'one_player_done_0.6':
+              'one player done 60%':
                   {'p1': 0.6},
 
-              'one_player_done_0':
+              'one player done 0%':
                   {'p1': 0},
 
-              'one_player_done -0.5':
+              'one player done -50%':
                   {'p1': -0.5},
 
-              'one_player_done_negative_1':
+              'one player done -100%':
                   {'p1': -1},
 
-              'all_players_have_different_places':
+              'all players have different places':
                   {'p1': 1,
                    'p2': 2,
                    'p3': 3,
                    'p4': 4,
                    'p5': 5},
 
-              'some_players_have_similar_places':
+              'some players have similar places':
                   {'p1': 1,
                    'p2': 2,
                    'p3': 2,
